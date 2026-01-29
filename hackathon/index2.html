@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labhsetu | Nature-First Material Flow</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* UK Lush Green Palette */
+            --deep-forest: #0F2C23;
+            --moss-green: #2D5A43;
+            --sage: #8DA898;
+            --leaf-bright: #84C273;
+            --flower-pink: #E8A8A8;
+            --flower-white: #F9F9F9;
+            --wood: #6D4C41;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(180deg, #E6F4F1 0%, #CDEBD6 100%);
+            color: var(--deep-forest);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 150px; /* Space for trees */
+        }
+
+        /* --- Bootstrap Overrides for Nature Theme --- */
+        
+        /* Navbar */
+        .navbar {
+            background-color: rgba(15, 44, 35, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 800;
+            color: white !important;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand span { color: var(--leaf-bright); }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.7) !important;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        /* Buttons */
+        .btn-success {
+            background-color: var(--moss-green);
+            border-color: var(--moss-green);
+            border-radius: 50px;
+            padding: 10px 30px;
+            font-weight: 600;
+            box-shadow: 0 8px 15px rgba(45, 90, 67, 0.2);
+            transition: 0.3s;
+        }
+        
+        .btn-success:hover {
+            background-color: var(--deep-forest);
+            border-color: var(--deep-forest);
+            transform: translateY(-3px);
+        }
+
+        .btn-outline-success {
+            color: var(--moss-green);
+            border-color: var(--moss-green);
+            border-radius: 50px;
+            padding: 10px 30px;
+            font-weight: 600;
+        }
+        
+        .btn-outline-success:hover {
+            background-color: var(--moss-green);
+            color: white;
+        }
+
+        /* Glassmorphism Cards (Overriding Bootstrap Card) */
+        .card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(15, 44, 35, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Forms */
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid rgba(45, 90, 67, 0.1);
+            background-color: rgba(255,255,255,0.9);
+            padding: 12px;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--moss-green);
+            box-shadow: 0 0 0 0.25rem rgba(45, 90, 67, 0.15);
+        }
+
+        /* --- Custom Interactive Elements --- */
+        .material-option {
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            transition: 0.3s;
+            background: white;
+        }
+        
+        .material-option:hover { transform: translateY(-5px); }
+        
+        .material-option.selected {
+            border-color: var(--moss-green);
+            background-color: #E6F4F1;
+        }
+
+        /* --- Animation: Falling Leaves --- */
+        .leaf {
+            position: absolute;
+            top: -10px;
+            width: 15px;
+            height: 15px;
+            background: var(--leaf-bright);
+            border-radius: 0 50% 0 50%;
+            opacity: 0.6;
+            animation: fall linear infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.6; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- Animation: Trees (Fixed Bottom) --- */
+        .scenery-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .ground {
+            position: absolute;
+            bottom: -50px;
+            width: 120%;
+            left: -10%;
+            height: 80px;
+            background: var(--moss-green);
+            border-radius: 50% 50% 0 0;
+        }
+
+        .tree { position: absolute; bottom: 10px; transform-origin: bottom center; animation: sway 4s infinite ease-in-out; }
+        .trunk { width: 10px; height: 50px; background: var(--wood); margin: 0 auto; }
+        .leaves { width: 50px; height: 50px; background: var(--deep-forest); border-radius: 50%; margin-bottom: -10px; position: relative; top: -10px; }
+        
+        .flower { position: absolute; bottom: 10px; transform-origin: bottom center; animation: sway 3s infinite ease-in-out; }
+        .stem { width: 3px; height: 25px; background: var(--leaf-bright); margin: 0 auto; }
+        .petals { width: 12px; height: 12px; background: var(--flower-white); border-radius: 50%; position: relative; top: -4px; }
+        .center { width: 4px; height: 4px; background: #FFD700; border-radius: 50%; position: absolute; top: 4px; left: 4px; }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(3deg); }
+        }
+
+        /* Page Handling */
+        .page-section { display: none; padding-top: 80px; animation: fadeIn 0.5s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+        
+    </style>
+</head>
+<body>
+
+    <div id="leaves-container"></div>
+    <div class="scenery-container">
+        <div class="ground"></div>
+        <div class="tree" style="left: 5%;"><div class="leaves"></div><div class="trunk"></div></div>
+        <div class="tree" style="left: 15%; transform: scale(0.8);"><div class="leaves" style="background:var(--moss-green)"></div><div class="trunk"></div></div>
+        <div class="tree" style="right: 8%;"><div class="leaves"></div><div class="trunk"></div></div>
+        <div class="flower" style="left: 25%;"><div class="petals"><div class="center"></div></div><div class="stem"></div></div>
+        <div class="flower" style="left: 28%; transform: scale(0.8);"><div class="petals" style="background:var(--flower-pink)"><div class="center"></div></div><div class="stem"></div></div>
+        <div class="flower" style="right: 20%;"><div class="petals"><div class="center"></div></div><div class="stem"></div></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">🌿 Labh<span>setu</span></a>
+            <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link active" href="#" onclick="showPage('home')">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('discard')">Discard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('need')">Sourcing</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('bridge')">Live Bridge</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="page-section active">
+        <div class="container min-vh-100 d-flex flex-column justify-content-center align-items-center text-center" style="margin-top: -50px;">
+            <h1 class="display-3 fw-bold mb-3" style="color: var(--deep-forest);">Discarded Material.<br><span style="color: var(--moss-green); font-style: italic;">Naturally</span> Reconnected.</h1>
+            <p class="lead mb-5" style="max-width: 600px; color: var(--moss-green);">
+                A decentralized system turning urban waste into rural opportunity and industrial raw material.
+            </p>
+            <div class="d-flex gap-3">
+                <button class="btn btn-success btn-lg" onclick="showPage('discard')">I Have Material</button>
+                <button class="btn btn-outline-success btn-lg" onclick="showPage('bridge')">See System Flow</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="discard" class="page-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card p-4">
+                        <h3 class="fw-bold mb-4 text-center" style="color: var(--deep-forest);">Route Your Material</h3>
+                        
+                        <form onsubmit="handleDiscard(event)">
+                            <label class="form-label fw-bold">Select Material Type</label>
+                            <div class="row g-3 mb-4">
+                                <div class="col-3">
+                                    <div class="material-option p-3 text-center" onclick="selectMat(this, 'Cardboard')">
+                                        <div class="fs-2">📦</div><small>Box</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="material-option p-3 text-center" onclick="selectMat(this, 'Plastic')">
+                                        <div class="fs-2">🥤</div><small>PET</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="material-option p-3 text-center" onclick="selectMat(this, 'Textile')">
+                                        <div class="fs-2">👕</div><small>Cloth</small>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="material-option p-3 text-center" onclick="selectMat(this, 'Organic')">
+                                        <div class="fs-2">🍂</div><small>Bio</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedType" value="Mixed">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Approx Weight (kg)</label>
+                                <input type="number" class="form-control" id="weight" placeholder="e.g. 50">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Pickup Location</label>
+                                <input type="text" class="form-control" id="location" placeholder="e.g. Sector 12">
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100 py-2">Route Material Now</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="need" class="page-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="card p-4">
+                        <h3 class="fw-bold mb-4 text-center" style="color: var(--deep-forest);">Source Materials</h3>
+                        
+                        <form>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">I am a...</label>
+                                <select class="form-select">
+                                    <option>Rural Processor (SHG)</option>
+                                    <option>Factory / Industry</option>
+                                    <option>Recycling Unit</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Material Required</label>
+                                <select class="form-select">
+                                    <option>Washed PET Flakes</option>
+                                    <option>Compressed Cardboard</option>
+                                    <option>Sorted Textile Rags</option>
+                                    <option>Organic Compost</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Monthly Volume (Tons)</label>
+                                <input type="number" class="form-control" placeholder="e.g. 2">
+                            </div>
+
+                            <button type="button" class="btn btn-outline-success w-100 py-2">Check Availability</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="bridge" class="page-section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold" style="color: var(--deep-forest);">Live Ecosystem Flow</h2>
+                <p style="color: var(--moss-green);">Visualizing the journey from City to Village to Industry</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 p-3" style="border-top: 5px solid #E74C3C;">
+                        <h5 class="mb-3">🏙️ Urban Discard</h5>
+                        <div id="col-1" class="d-flex flex-column gap-2">
+                            </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 p-3" style="border-top: 5px solid #F1C40F;">
+                        <h5 class="mb-3">🏡 Rural Processing</h5>
+                        <div id="col-2" class="d-flex flex-column gap-2">
+                             <div class="alert alert-light border shadow-sm d-flex align-items-center gap-2 mb-0">
+                                <span>📦</span>
+                                <div class="lh-1">
+                                    <strong>Batch #104</strong><br>
+                                    <small class="text-muted">Sorting at Jansla Unit</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card h-100 p-3" style="border-top: 5px solid #2ECC71;">
+                        <h5 class="mb-3">🏭 Industry Use</h5>
+                        <div id="col-3" class="d-flex flex-column gap-2">
+                            <div class="alert alert-success border shadow-sm d-flex align-items-center gap-2 mb-0">
+                                <span>✓</span>
+                                <div class="lh-1">
+                                    <strong>500kg Plastic</strong><br>
+                                    <small>Delivered to Textile Co.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // --- 1. Falling Leaves Logic ---
+        const leafContainer = document.getElementById('leaves-container');
+        for(let i=0; i<15; i++){
+            let leaf = document.createElement('div');
+            leaf.className = 'leaf';
+            leaf.style.left = Math.random() * 100 + 'vw';
+            leaf.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            leaf.style.animationDelay = (Math.random() * 5) + 's';
+            leafContainer.appendChild(leaf);
+        }
+
+        // --- 2. Page Navigation ---
+        function showPage(pageId) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            // Show target
+            document.getElementById(pageId).classList.add('active');
+            
+            // Close nav on mobile
+            const navCollapse = document.getElementById('navbarNav');
+            if(navCollapse.classList.contains('show')) {
+                new bootstrap.Collapse(navCollapse).hide();
+            }
+        }
+
+        // --- 3. Form Selection Logic ---
+        function selectMat(el, val) {
+            document.querySelectorAll('.material-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('selectedType').value = val;
+        }
+
+        // --- 4. The Bridge Logic (Demo) ---
+        function handleDiscard(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('selectedType').value;
+            const weight = document.getElementById('weight').value || 50;
+            const location = document.getElementById('location').value || 'Unknown';
+
+            // Switch to Bridge Page
+            showPage('bridge');
+
+            // Create Item Card for Animation
+            const itemHTML = `
+                <div class="alert alert-light border shadow-sm d-flex align-items-center gap-2 mb-0 animate-in">
+                    <span>🌿</span>
+                    <div class="lh-1">
+                        <strong>${type} (${weight}kg)</strong><br>
+                        <small class="text-muted">From ${location}</small>
+                    </div>
+                </div>
+            `;
+
+            // Step 1: Add to Urban
+            setTimeout(() => {
+                const col1 = document.getElementById('col-1');
+                const div = document.createElement('div');
+                div.innerHTML = itemHTML;
+                col1.prepend(div.firstElementChild);
+            }, 500);
+
+            // Step 2: Move to Rural (Simulated)
+            setTimeout(() => {
+                // Clear col 1 (optional for demo) or just add to col 2
+                const col2 = document.getElementById('col-2');
+                const div = document.createElement('div');
+                div.innerHTML = itemHTML.replace('From', 'Processing at'); // slight text change
+                col2.prepend(div.firstElementChild);
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
